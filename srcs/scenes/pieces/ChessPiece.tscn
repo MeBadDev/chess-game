@@ -1,12 +1,22 @@
 [gd_scene format=3 uid="uid://3qwse1up8udr"]
 
 [ext_resource type="Script" uid="uid://bsanw6jm778nk" path="res://srcs/scenes/pieces/chess_piece.gd" id="1_e0esx"]
-[ext_resource type="Texture2D" uid="uid://cj7x2bd7l3xsi" path="res://srcs/textures/White/Pawn White Outline 288px.png" id="1_fw0xn"]
 
-[node name="ChessPiece" type="TextureRect" unique_id=1687491136]
+[node name="ChessPiece" type="Control" unique_id=1935544379]
+layout_mode = 3
+anchors_preset = 0
 offset_right = 64.0
 offset_bottom = 64.0
-texture = ExtResource("1_fw0xn")
-expand_mode = 3
-stretch_mode = 5
+pivot_offset = Vector2(32, 32)
+mouse_default_cursor_shape = 6
 script = ExtResource("1_e0esx")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=243455410]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+metadata/_edit_lock_ = true
