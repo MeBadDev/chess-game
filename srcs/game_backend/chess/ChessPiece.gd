@@ -17,6 +17,11 @@ enum TYPE {
 	QUEEN
 }
 
+enum BOARD_SIDE {
+	KING_SIDE,
+	QUEEN_SIDE
+}
+
 const VALUE :Dictionary[TYPE, int] = {
 	TYPE.PAWN: 1,
 	TYPE.ROOK: 5,

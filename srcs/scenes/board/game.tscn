@@ -1,11 +1,14 @@
 [gd_scene format=3 uid="uid://yj21jue76ce5"]
 
 [ext_resource type="Script" uid="uid://dwyle6akqf8h" path="res://srcs/scenes/board/board.gd" id="1_awes0"]
-[ext_resource type="Script" uid="uid://dh7y6vvohote" path="res://srcs/chess_backend/starting_positions/starting_positions.gd" id="2_y4m6f"]
+[ext_resource type="Script" uid="uid://b51t7tymwmc37" path="res://srcs/game_backend/chess/starting_positions/four_knights_italian_game.gd" id="2_wskiv"]
+[ext_resource type="PackedScene" uid="uid://b6nxkav2wlo25" path="res://srcs/scenes/card/CardContainer.tscn" id="3_wskiv"]
 
-[sub_resource type="Resource" id="Resource_y4m6f"]
-script = ExtResource("2_y4m6f")
-metadata/_custom_type_script = "uid://dh7y6vvohote"
+[sub_resource type="Resource" id="Resource_wskiv"]
+script = ExtResource("2_wskiv")
+name = "Four Knights Game: Italian Variation"
+description = "A classic symmetry variation! Probably the most common opening but I'm too lazy to fact check"
+metadata/_custom_type_script = "uid://b51t7tymwmc37"
 
 [node name="Game" type="Control" unique_id=1540590080]
 layout_mode = 3
@@ -42,7 +45,7 @@ script = ExtResource("1_awes0")
 square_size = 64
 dark_square_color = Color(0.54901963, 0.7882353, 0.21176471, 1)
 light_square_color = Color(1, 0.9490196, 0.83137256, 1)
-opening_position = SubResource("Resource_y4m6f")
+opening_position = SubResource("Resource_wskiv")
 
 [node name="Background" type="GridContainer" parent="Board" unique_id=1976662061]
 layout_mode = 1
@@ -63,3 +66,5 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="CardContainer" parent="." unique_id=747258527 instance=ExtResource("3_wskiv")]

@@ -14,7 +14,7 @@ extends Control
 		light_square_color = new_color
 		_update_ui()
 
-@export var opening_position:= StartingPosition.new():
+@export var opening_position:= OpeningPosition.new():
 	set(new_opening_pos):
 		opening_position = new_opening_pos
 		_update_ui()
@@ -25,6 +25,9 @@ var square_scene := preload("res://srcs/scenes/board/square.tscn")
 var piece_node_scene := preload("res://srcs/scenes/pieces/ChessPiece.tscn")
 func _ready() -> void:
 	_update_ui()
+	
+	print(ChessPosition.encode_arr_as_vec(["a1", "b1", "e5"])) # [Vector2i(0, 0), Vector2i(1, 0), Vector2i(4, 4)]
+
 
 func _free_all_child(node: Node):
 	if not node:

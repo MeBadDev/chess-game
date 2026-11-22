@@ -1,0 +1,158 @@
+[gd_scene format=3 uid="uid://be0iacxmy8uoe"]
+
+[ext_resource type="Script" uid="uid://clsb78u414df5" path="res://srcs/scenes/card/card.gd" id="1_fienv"]
+[ext_resource type="Texture2D" uid="uid://bat0jd5t7c432" path="res://srcs/textures/pieces/White/King White 288px.png" id="2_3i3h0"]
+[ext_resource type="Texture2D" uid="uid://32cdaemo32cj" path="res://srcs/textures/card/prototype_front.png" id="3_fd1hn"]
+[ext_resource type="Script" uid="uid://bl6eogcdxvjyd" path="res://srcs/game_backend/card/Card.gd" id="4_3i3h0"]
+[ext_resource type="Shader" uid="uid://cgqcexij7pv8p" path="res://srcs/scenes/card/skew.gdshader" id="4_6cf17"]
+
+[sub_resource type="Resource" id="Resource_fienv"]
+script = ExtResource("4_3i3h0")
+name = "Card Title"
+metadata/_custom_type_script = "uid://bl6eogcdxvjyd"
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3i3h0"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_fd1hn"]
+viewport_path = NodePath("Visual/SubViewport")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hfc8d"]
+resource_local_to_scene = true
+shader = ExtResource("4_6cf17")
+shader_parameter/viewport_tex = SubResource("ViewportTexture_fd1hn")
+shader_parameter/skew = Vector2(0, 0)
+shader_parameter/skew_pivot = Vector2(0.5, 0.5)
+shader_parameter/tilt_degrees = Vector2(0, 0)
+shader_parameter/perspective_depth = 2.2
+shader_parameter/margin = 0.14000000665
+
+[node name="Card" type="Control" unique_id=1281509487]
+custom_minimum_size = Vector2(200, 280)
+custom_maximum_size = Vector2(200, 280)
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_fienv")
+card = SubResource("Resource_fienv")
+jump_height_when_hovered = 30
+
+[node name="Visual" type="Control" parent="." unique_id=1682134103]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_transform_enabled = true
+mouse_filter = 2
+mouse_behavior_recursive = 2
+
+[node name="SubViewport" type="SubViewport" parent="Visual" unique_id=1055592880]
+disable_3d = true
+handle_input_locally = false
+snap_2d_transforms_to_pixel = true
+size = Vector2i(200, 280)
+render_target_update_mode = 1
+
+[node name="BackSide" type="Panel" parent="Visual/SubViewport" unique_id=308279366]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_3i3h0")
+
+[node name="MarginContainer" type="MarginContainer" parent="Visual/SubViewport/BackSide" unique_id=1374262506]
+use_parent_material = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Visual/SubViewport/BackSide/MarginContainer" unique_id=1272439061]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="Visual/SubViewport/BackSide/MarginContainer/VBoxContainer" unique_id=668862911]
+layout_mode = 2
+text = "Card Title"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="Visual/SubViewport/BackSide/MarginContainer/VBoxContainer" unique_id=888945356]
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("2_3i3h0")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="Panel" type="Panel" parent="Visual/SubViewport/BackSide/MarginContainer/VBoxContainer" unique_id=599621940]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Label2" type="Label" parent="Visual/SubViewport/BackSide/MarginContainer/VBoxContainer/Panel" unique_id=56312646]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+text = "Description"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FrontSide" type="Panel" parent="Visual/SubViewport" unique_id=1592713924]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Visual/SubViewport/FrontSide" unique_id=1834009232]
+use_parent_material = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="TextureRect" type="TextureRect" parent="Visual/SubViewport/FrontSide/MarginContainer" unique_id=1852150956]
+layout_mode = 2
+texture = ExtResource("3_fd1hn")
+
+[node name="TextureRect" type="ColorRect" parent="Visual" unique_id=1158401633]
+material = SubResource("ShaderMaterial_hfc8d")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

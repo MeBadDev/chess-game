@@ -1,6 +1,6 @@
 @tool
 
-extends StartingPosition
+extends OpeningPosition
 
 class_name FourKnightsGame
 func _init() -> void:
