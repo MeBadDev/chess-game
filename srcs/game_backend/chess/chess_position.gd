@@ -9,6 +9,7 @@ class_name ChessPosition
 ## typed as Dictionary[Piece.SIDE, Dictionary] because Godot doesn't currently support nested typing
 var position :Dictionary[Piece.SIDE, Dictionary]
 
+
 ## Which side makes the next move
 var side_to_move :Piece.SIDE = Piece.SIDE.WHITE
 
@@ -23,15 +24,6 @@ var castling_right :Dictionary[Piece.SIDE, Dictionary] = {
 		Piece.BOARD_SIDE.QUEEN_SIDE: true,
 	}
 }
-
-## How many turns it has been since the start of the match. This variable increase every time a player has finished their move.
-var turn := 0:
-	set(new_turn):
-		turn = new_turn
-		fullmove = turn / 2
-
-## How many round it has been since the start of the match. This variable increase once when both player has finished their move.
-var fullmove := 0
 
 # since only 1 pawn can be en passanted, we can store that as a single int
 var _en_passant_possible :int = -1
@@ -55,6 +47,7 @@ func mark_en_passant_possible(file: int, possible: bool = true) -> void:
 ## Mark en passant as impossible.
 func mark_en_passant_impossible() -> void:
 	_en_passant_possible = -1
+
 
 
 ## Encode standard algebra notation position to [code]Array[Vector2i][/code]
@@ -112,3 +105,85 @@ static func get_file(file: int) -> Array[Vector2i]:
 		arr.append(Vector2i(file, i))
 	
 	return arr
+
+
+## Returns a [code]Dictionary[Vector2i, Piece][/code] that maps position to piece
+func build_square_lookup() -> Dictionary[Vector2i, Piece]:
+	var lookup: Dictionary[Vector2i, Piece] = {}
+
+	for side: Piece.SIDE in position:
+		var by_type: Dictionary = position[side]
+		for type: Piece.TYPE in by_type:
+			var piece := Piece.create(type, side)
+			var squares: Array[Vector2i] = by_type[type]
+			for square: Vector2i in squares:
+				lookup[square] = piece
+
+	return lookup
+
+## Returns a new ChessPosition with the piece at [param pos] removed.
+## If no piece is at [param pos], returns a copy with the same pieces.
+func remove_piece(pos: Vector2i) -> ChessPosition:
+	if not _is_valid_square(pos):
+		push_error("Position out of range: %s" % pos)
+		return _clone()
+
+	var next_pos := _clone()
+	for side: Piece.SIDE in next_pos.position:
+		var by_type: Dictionary = next_pos.position[side]
+		for type: Piece.TYPE in by_type:
+			var squares: Array[Vector2i] = by_type[type]
+			var idx := squares.find(pos)
+			if idx != -1:
+				squares.remove_at(idx)
+				return next_pos
+
+	return next_pos
+
+
+## Returns a new ChessPosition with a piece of [param piece_type] and [param piece_side]
+## placed at [param pos]. If a piece already occupies [param pos], it is replaced.
+func create_piece(pos: Vector2i, piece_type: Piece.TYPE, piece_side: Piece.SIDE) -> ChessPosition:
+	if not _is_valid_square(pos):
+		push_error("Position out of range: %s" % pos)
+		return _clone()
+
+	# Remove any existing piece on this square first so two pieces can't share a square
+	var next_pos := remove_piece(pos)
+
+	if not next_pos.position.has(piece_side):
+		next_pos.position[piece_side] = {}
+
+	var by_type: Dictionary = next_pos.position[piece_side]
+	if not by_type.has(piece_type):
+		var new_arr: Array[Vector2i] = []
+		by_type[piece_type] = new_arr
+
+	var squares: Array[Vector2i] = by_type[piece_type]
+	if not squares.has(pos):
+		squares.append(pos)
+
+	return next_pos
+
+
+func _is_valid_square(pos: Vector2i) -> bool:
+	return pos.x >= 0 and pos.x <= 7 and pos.y >= 0 and pos.y <= 7
+
+
+func _clone() -> ChessPosition:
+	var copy := ChessPosition.new()
+	copy.side_to_move = side_to_move
+	copy._en_passant_possible = _en_passant_possible
+	copy.castling_right = castling_right.duplicate(true)
+
+	var cloned_position: Dictionary[Piece.SIDE, Dictionary] = {}
+	for side: Piece.SIDE in position:
+		var inner_copy: Dictionary = {}
+		var by_type: Dictionary = position[side]
+		for type: Piece.TYPE in by_type:
+			var squares: Array[Vector2i] = by_type[type]
+			inner_copy[type] = squares.duplicate()
+		cloned_position[side] = inner_copy
+
+	copy.position = cloned_position
+	return copy

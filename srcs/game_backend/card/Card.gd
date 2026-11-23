@@ -25,6 +25,7 @@ class_name Card
 	set(new_color):
 		back_color = new_color
 		emit_changed()
+
 enum SIDE {
 	FRONT,
 	BACK,

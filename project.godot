@@ -18,6 +18,8 @@ config/icon="res://icon.svg"
 [autoload]
 
 Cursor="*uid://dyx4rwcrwxbfj"
+Game="*uid://obxolxepxb2q"
+Networking="*uid://cy6cnvj7a3odd"
 
 [display]
 

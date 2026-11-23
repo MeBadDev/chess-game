@@ -26,7 +26,6 @@ var piece_node_scene := preload("res://srcs/scenes/pieces/ChessPiece.tscn")
 func _ready() -> void:
 	_update_ui()
 	
-	print(ChessPosition.encode_arr_as_vec(["a1", "b1", "e5"])) # [Vector2i(0, 0), Vector2i(1, 0), Vector2i(4, 4)]
 
 
 func _free_all_child(node: Node):
