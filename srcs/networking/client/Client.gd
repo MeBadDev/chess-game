@@ -15,7 +15,7 @@ var channel_signals :Dictionary[StringName,Signal]
 func register_channel(channel_name:StringName) -> Signal:
 	if channel_name in channel_signals:
 		print("Channel with the name `%s` is already registered!" % channel_name)
-		return Signal()
+		return channel_signals[channel_name]
 	
 	add_user_signal(channel_name, [
 		{"name": "data", "type": TYPE_DICTIONARY}
@@ -23,6 +23,9 @@ func register_channel(channel_name:StringName) -> Signal:
 	var sig := Signal(self, channel_name)
 	channel_signals[channel_name] = sig
 	return sig
+
+func get_channel(channel_name: StringName):
+	return channel_signals[channel_name]
 
 func unregister_channel(channel_name:StringName) -> void:
 	if not channel_name in channel_signals:
@@ -87,7 +90,6 @@ func send_message(packet: Packet):
 
 func handle_incoming_messages(raw_packet: PackedByteArray):
 	var packet := Packet.deserialize(raw_packet)
-
 	var channel := packet.channel
 	if not channel in channel_signals:
 		print("Invalid Packet, channel is not registered!")

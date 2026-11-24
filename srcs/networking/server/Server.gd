@@ -6,12 +6,12 @@ signal peer_disconnected(peer_id: int, code: int, reason: String)
 
 var _tcp_server := TCPServer.new()
 var _peers: Dictionary[int, WebSocketPeer] = {}
+var _notified_peers: Dictionary[int, bool] = {}
 var _last_peer_id := 1
 
 var channel_signals: Dictionary[StringName, Signal] = {}
 
-
-func register_channel(channel_name: StringName) -> Signal:
+func register_channel(channel_name: StringName):
 	if channel_name in channel_signals:
 		push_warning("Channel `%s` is already registered on Server!" % channel_name)
 		return Signal()
@@ -38,7 +38,7 @@ func start(port: int) -> Error:
 	if err == OK:
 		print("Server started on port %d." % port)
 	else:
-		push_error("Unable to start server on port %d (error %d)." % [port, err])
+		push_error("Unable to start server on port %d (error %s)." % [port, error_string(err)])
 	return err
 
 
@@ -82,12 +82,11 @@ func _process(_delta: float) -> void:
 	while _tcp_server.is_connection_available():
 		_last_peer_id += 1
 		var peer_id := _last_peer_id
-		print("+ Peer %d connected." % peer_id)
+		print("+ Peer %d accepting stream." % peer_id)
 
 		var ws := WebSocketPeer.new()
 		ws.accept_stream(_tcp_server.take_connection())
 		_peers[peer_id] = ws
-		peer_connected.emit(peer_id)
 
 	for peer_id in _peers.keys():
 		var peer := _peers[peer_id]
@@ -95,11 +94,30 @@ func _process(_delta: float) -> void:
 
 		var peer_state := peer.get_ready_state()
 		if peer_state == WebSocketPeer.STATE_OPEN:
+			if not _notified_peers.has(peer_id):
+				_notified_peers[peer_id] = true
+				print("+ Peer %d connected." % peer_id)
+				peer_connected.emit(peer_id)
+
 			while peer.get_available_packet_count():
 				_handle_incoming_packet(peer_id, peer.get_packet())
 		elif peer_state == WebSocketPeer.STATE_CLOSED:
+			var was_connected := _notified_peers.has(peer_id)
 			_peers.erase(peer_id)
+			_notified_peers.erase(peer_id)
 			var code := peer.get_close_code()
 			var reason := peer.get_close_reason()
 			print("- Peer %d closed with code: %d, reason: %s. Clean: %s" % [peer_id, code, reason, code != -1])
-			peer_disconnected.emit(peer_id, code, reason)
+			if was_connected:
+				peer_disconnected.emit(peer_id, code, reason)
+
+func get_channel(channel_name: StringName):
+	return channel_signals[channel_name]
+
+func register_plugin(plugin: ServerPlugin):
+	print("Initializing plugin %s!" % plugin.plugin_name)
+	for channels in plugin.plugin_channels:
+		register_channel(channels)
+	
+	plugin.server = self
+	plugin.plugin_inited()

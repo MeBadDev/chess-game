@@ -77,7 +77,7 @@ func play_card(card: EffectCard):
 	card_activated.emit()
 
 
-func validate_move(piece_pos: Vector2i, new_pos: Vector2i) -> bool:
+func validate_move(_piece_pos: Vector2i, _new_pos: Vector2i) -> bool:
 	# placeholder
 	return true
 

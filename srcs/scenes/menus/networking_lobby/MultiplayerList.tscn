@@ -1,0 +1,109 @@
+[gd_scene format=3 uid="uid://cdmjj4ibvx0ln"]
+
+[ext_resource type="Script" uid="uid://clm01gss3ebv3" path="res://srcs/scenes/menus/networking_lobby/multiplayer_list.gd" id="1_w86ib"]
+
+[node name="MultiplayerList" type="Control" unique_id=703473660]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_w86ib")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1793405696]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.20930621, 0.25760075, 0.31650198, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="ColorRect" unique_id=1516195852]
+layout_mode = 1
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -241.0
+offset_right = 243.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/MarginContainer" unique_id=1219384203]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="ColorRect/MarginContainer/VBoxContainer" unique_id=810155984]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "ROOM LIST"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="ColorRect/MarginContainer/VBoxContainer" unique_id=658241661]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer/ScrollContainer" unique_id=2062860595]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="RoomCard" type="Button" parent="ColorRect/MarginContainer/VBoxContainer/ScrollContainer/VBoxContainer" unique_id=2126422956]
+visible = false
+layout_mode = 2
+text = "PLAYER's ROOM"
+alignment = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer" unique_id=313864979]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ColorRect/MarginContainer/VBoxContainer/HBoxContainer" unique_id=24423522]
+layout_mode = 2
+text = "Username"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="UsernameInput" type="LineEdit" parent="ColorRect/MarginContainer/VBoxContainer/HBoxContainer" unique_id=460748964]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ConfirmUsername" type="Button" parent="ColorRect/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1556813988]
+layout_mode = 2
+text = "Select"
+
+[node name="HSeparator" type="HSeparator" parent="ColorRect/MarginContainer/VBoxContainer" unique_id=2080704135]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer" unique_id=1174350678]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ColorRect/MarginContainer/VBoxContainer/VBoxContainer" unique_id=1143135037]
+layout_mode = 2
+text = "You can also create your own room!"
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer/VBoxContainer" unique_id=988355142]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ColorRect/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer" unique_id=1209427414]
+layout_mode = 2
+text = "Room Name: "
+
+[node name="RoomNameInput" type="LineEdit" parent="ColorRect/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer" unique_id=710731644]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "My Awesome Room! "
+max_length = 15
+
+[node name="ConfirmRoomName" type="Button" parent="ColorRect/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer" unique_id=268835957]
+layout_mode = 2
+text = "Create"
+
+[connection signal="pressed" from="ColorRect/MarginContainer/VBoxContainer/HBoxContainer/ConfirmUsername" to="." method="_on_confirm_username_pressed"]
+[connection signal="pressed" from="ColorRect/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer/ConfirmRoomName" to="." method="_on_confirm_room_name_pressed"]

@@ -1,5 +1,5 @@
 extends Card
 class_name EndConditionCard
 
-func check(game_state) -> Game.GameState.PROGRESS:
+func check(_game_state) -> Game.GameState.PROGRESS:
 	return Game.GameState.PROGRESS.CONTINUE
