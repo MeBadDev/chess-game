@@ -9,7 +9,7 @@ class_name VisualCard
 @export var max_tilt_degrees := Vector2.ONE * 10
 @export var hover_in_duration := 0.15
 @export var hover_out_duration := 0.25
-@export var skew_tween_duration := 0.16
+@export var skew_smoothing_speed := 12.0
 
 
 @export var flip_duration := 0.5
@@ -19,7 +19,8 @@ var _is_flipping := false
 
 
 var _hover_tween :Tween
-var _skew_tween :Tween
+var _skew_current := Vector2.ZERO
+var _tilt_current := Vector2.ZERO
 
 @onready var mat :ShaderMaterial= $Visual/TextureRect.material 
 var _active_side := Card.SIDE.BACK:
@@ -51,7 +52,6 @@ var is_mouse_hovering := false:
 			_hover_tween.tween_property(_visual, "offset_transform_position", target_position, hover_in_duration)
 		else:
 			_hover_tween.tween_property(_visual, "offset_transform_position", Vector2.ZERO, hover_out_duration)
-			_reset_skew_and_tilt()
 
 
 func _get_configuration_warnings() -> PackedStringArray:
@@ -64,34 +64,6 @@ func _ready() -> void:
 	mouse_entered.connect(func(): is_mouse_hovering = true)
 	mouse_exited.connect(func(): is_mouse_hovering = false)
 	_update()
-
-func _reset_skew_and_tilt() -> void:
-	if _flip_tween != null:
-		if _flip_tween.is_running():
-			return
-	if mat == null:
-		return
-
-	if _skew_tween and _skew_tween.is_valid():
-		_skew_tween.kill()
-
-	_skew_tween = create_tween() \
-		.set_parallel(true) \
-		.set_ease(Tween.EASE_OUT) \
-		.set_trans(Tween.TRANS_CUBIC)
-
-	_skew_tween.tween_method(
-		func(val: Vector2) -> void: mat.set_shader_parameter("skew", val),
-		mat.get_shader_parameter("skew") as Vector2,
-		Vector2.ZERO,
-		hover_out_duration
-	)
-	_skew_tween.tween_method(
-		func(val: Vector2) -> void: mat.set_shader_parameter("tilt_degrees", val),
-		mat.get_shader_parameter("tilt_degrees") as Vector2,
-		Vector2.ZERO,
-		hover_out_duration
-	)
 
 func _update():
 	if not is_node_ready():
@@ -121,13 +93,7 @@ func flip() -> void:
 
 	_is_flipping = true
 
-	# Stop hover skew from fighting the flip
-	if _skew_tween and _skew_tween.is_valid():
-		_skew_tween.kill()
-
-	var current_tilt := mat.get_shader_parameter("tilt_degrees") as Vector2
-	if current_tilt == null:
-		current_tilt = Vector2.ZERO
+	var current_tilt := _tilt_current
 
 	var half_duration := flip_duration * 0.5
 	var next_side := Card.SIDE.FRONT if _active_side == Card.SIDE.BACK else Card.SIDE.BACK
@@ -141,7 +107,7 @@ func flip() -> void:
 
 	# 1. Rotate current side toward edge
 	_flip_tween.tween_method(
-		func(val: Vector2) -> void: mat.set_shader_parameter("tilt_degrees", val),
+		_set_tilt,
 		current_tilt,
 		mid_tilt,
 		half_duration
@@ -153,12 +119,12 @@ func flip() -> void:
 		_side_nodes[next_side].show()
 		_active_side = next_side
 		_update()
-		mat.set_shader_parameter("tilt_degrees", entry_tilt)
+		_set_tilt(entry_tilt)
 	)
 
 	# 3. Swing new side back to flat
 	_flip_tween.tween_method(
-		func(val: Vector2) -> void: mat.set_shader_parameter("tilt_degrees", val),
+		_set_tilt,
 		entry_tilt,
 		Vector2.ZERO,
 		half_duration
@@ -167,47 +133,48 @@ func flip() -> void:
 	_flip_tween.finished.connect(func() -> void:
 		_is_flipping = false
 	, CONNECT_ONE_SHOT)
-	
-	_reset_skew_and_tilt()
-func _process(_delta: float) -> void:
-	
+
+
+func _process(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 	if _is_flipping:
 		return
-
-	if not is_mouse_hovering or mat == null or size.x <= 0.0 or size.y <= 0.0:
+	if mat == null or size.x <= 0.0 or size.y <= 0.0:
 		return
-	_handle_skewing()
-	if Input.is_action_just_pressed("flip_active_card"):
+	if not is_mouse_hovering and _skew_current.is_zero_approx() and _tilt_current.is_zero_approx():
+		return
+
+	var target_skew := Vector2.ZERO
+	var target_tilt := Vector2.ZERO
+	if is_mouse_hovering:
+		var mouse_pos := get_local_mouse_position()
+		var norm := (mouse_pos / size) * 2.0 - Vector2.ONE # (-1, -1) to (1, 1)
+		var inside := absf(norm.x) <= 1.0 and absf(norm.y) <= 1.0
+		if inside:
+			target_skew = Vector2(norm.x * max_skew.x, norm.y * max_skew.y)
+			target_tilt = Vector2(-norm.y * max_tilt_degrees.x, norm.x * max_tilt_degrees.y)
+
+	_handle_skewing(target_skew, target_tilt, delta)
+
+	if is_mouse_hovering and Input.is_action_just_pressed("flip_active_card"):
 		flip()
 
 
-func _handle_skewing():
-	var mouse_pos := get_local_mouse_position()
-	var norm := (mouse_pos / size) * 2.0 - Vector2.ONE # (-1, -1) to (1, 1)
-	var inside := absf(norm.x) <= 1.0 and absf(norm.y) <= 1.0
+func _handle_skewing(target_skew: Vector2, target_tilt: Vector2, delta: float) -> void:
+	var weight := 1.0 - exp(-skew_smoothing_speed * delta)
+	_skew_current = _skew_current.lerp(target_skew, weight)
+	_tilt_current = _tilt_current.lerp(target_tilt, weight)
 
-	var target_skew := Vector2(norm.x * max_skew.x, norm.y * max_skew.y) if inside else Vector2.ZERO
-	var target_tilt := Vector2(-norm.y * max_tilt_degrees.x, norm.x * max_tilt_degrees.y) if inside else Vector2.ZERO
+	if _skew_current.is_equal_approx(target_skew):
+		_skew_current = target_skew
+	if _tilt_current.is_equal_approx(target_tilt):
+		_tilt_current = target_tilt
 
-	if _skew_tween and _skew_tween.is_valid():
-		_skew_tween.kill()
+	mat.set_shader_parameter("skew", _skew_current)
+	mat.set_shader_parameter("tilt_degrees", _tilt_current)
 
-	_skew_tween = create_tween() \
-		.set_parallel(true) \
-		.set_ease(Tween.EASE_OUT) \
-		.set_trans(Tween.TRANS_CUBIC)
 
-	_skew_tween.tween_method(
-		func(val: Vector2) -> void: mat.set_shader_parameter("skew", val),
-		mat.get_shader_parameter("skew") as Vector2,
-		target_skew,
-		skew_tween_duration
-	)
-	_skew_tween.tween_method(
-		func(val: Vector2) -> void: mat.set_shader_parameter("tilt_degrees", val),
-		mat.get_shader_parameter("tilt_degrees") as Vector2,
-		target_tilt,
-		skew_tween_duration
-	)
+func _set_tilt(value: Vector2) -> void:
+	_tilt_current = value
+	mat.set_shader_parameter("tilt_degrees", value)

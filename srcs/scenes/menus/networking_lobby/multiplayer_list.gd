@@ -5,12 +5,12 @@ extends Control
 
 @onready var room_join_btn := $ColorRect/MarginContainer/VBoxContainer/ScrollContainer/VBoxContainer/RoomCard
 @onready var confirm_username_btn :Button= $ColorRect/MarginContainer/VBoxContainer/HBoxContainer/ConfirmUsername
-@onready var confirm_room_name_btn :Button= $ColorRect/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer/ConfirmRoomName
+@onready var create_room_btn :Button= $ColorRect/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer/CreateRoom
 
 var _requested_profile :Profile
 func _ready() -> void:
 	await Networking.state_ready()
-	Networking.client.register_channel("channel_list")
+	Networking.client.register_channel("room")
 	Networking.client.get_channel("profile").connect(_profile_channel)
 
 
@@ -39,5 +39,18 @@ func _on_confirm_username_pressed() -> void:
 	
 
 
-func _on_confirm_room_name_pressed() -> void:
-	pass # Replace with function body.
+func _on_create_room_pressed() -> void:
+	var room_name := room_name_input.text
+	var new_room := Room.create(Networking.player_profile, room_name, 2)
+	Networking.client.send_message(
+		Packet.create("room", {
+			"action": &"create",
+			"room": new_room.serialize()
+		})
+	)
+	
+	var room_channel_msg := Networking.client.get_channel("room")
+	var server_response :Dictionary = await room_channel_msg
+	var accepted :bool = server_response.get("accepted", false)
+	
+	print(accepted)

@@ -11,6 +11,8 @@ var websocket_url := "ws://localhost"
 var player_profile := Profile.new()
 
 signal _client_initialized
+
+
 func state_ready():
 	if not is_node_ready():
 		await ready
@@ -21,15 +23,17 @@ func state_ready():
 	return
 
 func _start_server():
+	
 	server = Server.new()
 	is_server = true
 	add_child(server)
 	server.start(PORT)
 	
-	var plugins := [PlayerProfilePlugin.new()]
+	var plugins :Array[ServerPlugin]= [PlayerProfilePlugin.new(), RoomsPlugin.new()]
+	
 	for plugin in plugins:
 		server.register_plugin(plugin)
-
+	server.finish_register_plugin()
 
 func _ready():
 	if DisplayServer.get_name() == "headless":

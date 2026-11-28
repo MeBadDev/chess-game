@@ -24,7 +24,7 @@ func register_channel(channel_name:StringName) -> Signal:
 	channel_signals[channel_name] = sig
 	return sig
 
-func get_channel(channel_name: StringName):
+func get_channel(channel_name: StringName) -> Signal:
 	return channel_signals[channel_name]
 
 func unregister_channel(channel_name:StringName) -> void:

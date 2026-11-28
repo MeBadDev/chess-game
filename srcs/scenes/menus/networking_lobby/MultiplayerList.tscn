@@ -38,12 +38,20 @@ theme_override_constants/margin_bottom = 16
 [node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/MarginContainer" unique_id=1219384203]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="ColorRect/MarginContainer/VBoxContainer" unique_id=810155984]
+[node name="HBoxContainer2" type="HBoxContainer" parent="ColorRect/MarginContainer/VBoxContainer" unique_id=1233927362]
 layout_mode = 2
+
+[node name="Title" type="Label" parent="ColorRect/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=810155984]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 48
 text = "ROOM LIST"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="RefreshRoomButton" type="Button" parent="ColorRect/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1173618548]
+layout_mode = 2
+text = "Refresh"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="ColorRect/MarginContainer/VBoxContainer" unique_id=658241661]
 layout_mode = 2
@@ -101,9 +109,9 @@ size_flags_horizontal = 3
 placeholder_text = "My Awesome Room! "
 max_length = 15
 
-[node name="ConfirmRoomName" type="Button" parent="ColorRect/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer" unique_id=268835957]
+[node name="CreateRoom" type="Button" parent="ColorRect/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer" unique_id=268835957]
 layout_mode = 2
 text = "Create"
 
 [connection signal="pressed" from="ColorRect/MarginContainer/VBoxContainer/HBoxContainer/ConfirmUsername" to="." method="_on_confirm_username_pressed"]
-[connection signal="pressed" from="ColorRect/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer/ConfirmRoomName" to="." method="_on_confirm_room_name_pressed"]
+[connection signal="pressed" from="ColorRect/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer/CreateRoom" to="." method="_on_create_room_pressed"]

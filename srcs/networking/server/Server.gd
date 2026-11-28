@@ -3,6 +3,7 @@ class_name Server
 
 signal peer_connected(peer_id: int)
 signal peer_disconnected(peer_id: int, code: int, reason: String)
+signal all_plugins_inited
 
 var _tcp_server := TCPServer.new()
 var _peers: Dictionary[int, WebSocketPeer] = {}
@@ -11,7 +12,10 @@ var _last_peer_id := 1
 
 var channel_signals: Dictionary[StringName, Signal] = {}
 
-func register_channel(channel_name: StringName):
+var plugins :Dictionary[StringName, ServerPlugin]= {}
+
+var allow_new_plugins := true
+func register_channel(channel_name: StringName) -> Signal:
 	if channel_name in channel_signals:
 		push_warning("Channel `%s` is already registered on Server!" % channel_name)
 		return Signal()
@@ -24,6 +28,8 @@ func register_channel(channel_name: StringName):
 	channel_signals[channel_name] = sig
 	return sig
 
+func peer_exists(peer_id: int) -> bool:
+	return _peers.has(peer_id)
 
 func unregister_channel(channel_name: StringName) -> void:
 	if not channel_name in channel_signals:
@@ -111,13 +117,22 @@ func _process(_delta: float) -> void:
 			if was_connected:
 				peer_disconnected.emit(peer_id, code, reason)
 
-func get_channel(channel_name: StringName):
+func get_channel(channel_name: StringName) -> Signal:
 	return channel_signals[channel_name]
 
-func register_plugin(plugin: ServerPlugin):
+func register_plugin(plugin: ServerPlugin) -> void:
+	if not allow_new_plugins:
+		push_error("Registering plugins is no longer allowed!")
+		return
 	print("Initializing plugin %s!" % plugin.plugin_name)
 	for channels in plugin.plugin_channels:
 		register_channel(channels)
 	
+	plugins[plugin.get_id()] = plugin
 	plugin.server = self
-	plugin.plugin_inited()
+
+func finish_register_plugin():
+	for plugin in plugins.values():
+		plugin.plugin_inited()
+	
+	all_plugins_inited.emit()
